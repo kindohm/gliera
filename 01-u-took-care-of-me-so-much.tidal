@@ -1,0 +1,28 @@
+bps (165/120)
+
+do
+    let mod p = id $ p
+    let kmod p = (# nudge (scale 0 0.1 $ shift' 33 rand)) $ p
+    let pat = "1(<3 9 5 2 7 1>,16)"
+    d1 $ kmod $ mod $ gain pat # midinote "0" # s "midi" # midichan "0"
+    d4 $ whenmod 10 5 (0.125 <~) $ mod $ midinote "~ 2" # s "midi" # midichan "0"
+    d2 $ mod $ foldEvery [2..5] (density (4/3)) $ density 2 $ midinote "8" # s "midi" # midichan 0
+    d3 $ kmod $ mod $ gain pat # note "[0,7,14,-2]" # s "midi" # midichan "15"
+    d5 $ stack [
+            (# control (discretise 1 $ shift' 324 $ choose [0,0,0,127])) $ mod $ gain pat # ctlNum 10,
+            (# control (discretise 1 $ scale 10 80 $ shift' 3 rand)) $ mod $ gain pat # ctlNum 9,
+            (# control (discretise 1 $ scale 0 64 $ shift' 4 rand)) $ mod $ gain pat # ctlNum 8,
+            (# control (scale 0 127 $ slow 23 sine)) $ mod $ gain pat # ctlNum 1,
+            (# control (scale 0 127 $ slow 22 sine)) $ mod $ gain pat # ctlNum 2,
+            (# control (scale 0 127 $ slow 21 sine)) $ mod $ gain pat # ctlNum 3,
+            (# control (scale 0 127 $ slow 20 sine)) $ mod $ gain pat # ctlNum 4,
+            (# control (scale 0 127 $ slow 24 sine)) $ mod $ gain pat # ctlNum 5,
+            (# control (scale 0 127 $ slow 19 sine)) $ mod $ gain pat # ctlNum 6,
+            (# control (scale 0 127 $ slow 25 sine)) $ mod $ gain pat # ctlNum 7] 
+            # midicmd "control" # midichan 15 # s "midi"
+
+
+hush
+
+d3 $ s "midi" # midichan 15
+
