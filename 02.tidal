@@ -1,0 +1,29 @@
+
+
+bps (160/120)
+
+do
+    let pat = "{1 0 0 1 0 0 1 0 1 0 1 0 1 0 ~ ~ ~}%16"
+    d1 $ stack [
+            gain pat # midinote "0",
+            whenmod 20 10 (gtfo) $ whenmod 10 5 (stut' 1 (0.0625) (id)) $ gain pat # midinote 8,
+            slow 1 $ midinote 3
+            ] # s "midi" # midichan 0
+    d2 $ (# control "[20 80]/8") $ gain pat # ctlNum "18*4" # s "midi" # midicmd "control" # midichan 0
+    d3 $ gtfo $ (|+| note "0") $ (|+| note "-6") $ 
+        (|+| note "{0}%16") $ gain (inv <$> pat) # note "[0]" # s "midi" # midichan 15 # nudge "0.20"
+    d4 $ stack [
+            gain "1*8" # control (scale 0 127 $ slow 22.66 tri) # ctlNum "1",
+            gain "1*8" # control (scale 0 127 $ slow 21 tri) # ctlNum "2",
+            gain "1*8" # control (scale 0 127 $ slow 24 tri) # ctlNum "3",
+            gain "1*8" # control (scale 0 127 $ slow 22 tri) # ctlNum "4",
+            gain "1*8" # control (scale 0 127 $ slow 23 tri) # ctlNum "5",
+            gain "1*8" # control (scale 0 127 $ slow 23.66 tri) # ctlNum "6",
+            gain "1*8" # control (scale 0 127 $ slow 21.66 tri) # ctlNum "7",
+            gain "1*8" # control (scale 0 127 $ slow 22.33 tri) # ctlNum "24",
+            gain "1*8" # control (scale 0 127 $ slow 23.33 tri) # ctlNum "25",
+            gain "1*8" # control (scale 0 127 $ slow 24.33 tri) # ctlNum "26"
+            ] # nudge "0.20" # midichan 15 # s "midi" # midicmd "control"
+
+    hush
+

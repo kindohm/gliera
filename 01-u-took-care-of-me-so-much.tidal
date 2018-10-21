@@ -1,28 +1,66 @@
 bps (165/120)
 
-do
-    let mod p = id $ p
-    let kmod p = (# nudge (scale 0 0.1 $ shift' 33 rand)) $ p
-    let pat = "1(<3 9 5 2 7 1>,16)"
-    d1 $ kmod $ mod $ gain pat # midinote "0" # s "midi" # midichan "0"
-    d4 $ whenmod 10 5 (0.125 <~) $ mod $ midinote "~ 2" # s "midi" # midichan "0"
-    d2 $ mod $ foldEvery [2..5] (density (4/3)) $ density 2 $ midinote "8" # s "midi" # midichan 0
-    d3 $ kmod $ mod $ gain pat # note "[0,7,14,-2]" # s "midi" # midichan "15"
-    d5 $ stack [
-            (# control (discretise 1 $ shift' 324 $ choose [0,0,0,127])) $ mod $ gain pat # ctlNum 10,
-            (# control (discretise 1 $ scale 10 80 $ shift' 3 rand)) $ mod $ gain pat # ctlNum 9,
-            (# control (discretise 1 $ scale 0 64 $ shift' 4 rand)) $ mod $ gain pat # ctlNum 8,
-            (# control (scale 0 127 $ slow 23 sine)) $ mod $ gain pat # ctlNum 1,
-            (# control (scale 0 127 $ slow 22 sine)) $ mod $ gain pat # ctlNum 2,
-            (# control (scale 0 127 $ slow 21 sine)) $ mod $ gain pat # ctlNum 3,
-            (# control (scale 0 127 $ slow 20 sine)) $ mod $ gain pat # ctlNum 4,
-            (# control (scale 0 127 $ slow 24 sine)) $ mod $ gain pat # ctlNum 5,
-            (# control (scale 0 127 $ slow 19 sine)) $ mod $ gain pat # ctlNum 6,
-            (# control (scale 0 127 $ slow 25 sine)) $ mod $ gain pat # ctlNum 7] 
-            # midicmd "control" # midichan 15 # s "midi"
+let midinudge =  nudge "0.2"
 
+do
+    let sceneChange = "[0 ]/32"
+    let clapChange = "[2]/32"
+    let abChange = "[0]/32"
+    let mod p =  whenmod 10 5 (move) $ p
+    let kmod p = (|+| nudge (scale 0 0.1 $ shift' 33 rand)) $ p
+    let pat = "1(<3 9 5 2 7 1>,16)"
+    -- kick
+    d1 $ whenmod 17 15 (gtfo) $ kmod $ mod $ gain pat # midinote "0" # s "midi" # midichan "0" # gain (scale 0.9 1 $ shift' 119 rand) 
+    -- snare
+    d4 $ whenmod 20 16 (gtfo) $ 
+        whenmod 10 5 (0.125 <~) $ mod $ gain "~ 1" # midinote clapChange # s "midi" # midichan "0" 
+    -- hats
+    d2 $ mod $ foldEvery [2..5] (density (4/3)) $ density 2 $ midinote "8" # s "midi" # midichan 0 # gain (scale 1 1.25 $ shift' 120 rand) 
+    d6 $ mod $ gain pat # control sceneChange # ctlNum 92 # s "midi" # midichan "0" # midicmd "control" 
+    d3 $ whenmod 15 13 (gtfo) $ kmod $ mod $ gain pat # note "[0,7,14,-2]" # s "midi" # midichan "15" # midinudge
+    d7 $ whenmod 18 14 (# gain 0.9) $ kmod $ mod $ gain pat # 
+        stack [s "turret" # cut "22" # pan 0.25, s "turret" # cut "23" # pan 0.75 |*| speed 1.1] 
+        # n (discretise 1 $ shift' 2004 $ choose [0,4])
+        |+| note "-5"
+        |+| note (discretise 1 $ shift' 2003 $ choose [-12,-11..(-9)])
+        # begin (discretise 1 $ shift' 2002 $ choose [0,0.01..0.5]) # gain 0
+    d5 $ stack [
+            (# control (discretise 1 $ shift' 324 $ choose [0,0,0,127])) $ mod $ gain pat # ctlNum 10, -- delay 
+            (# control (discretise 1 $ scale 0 60 $ shift' 3 rand)) $ mod $ gain pat # ctlNum 9, -- delayt
+            (# control (discretise 1 $ scale 0 84 $ shift' 4 rand)) $ mod $ gain pat # ctlNum 8, -- delayfb
+            (# control (discretise 1 $ shift' 3249 $ choose [0,127,0,0])) $ mod $ gain pat # ctlNum 19, -- delaydrums 
+            (# control (discretise 1 $ scale 0 50 $ shift' 309 rand)) $ mod $ gain pat # ctlNum 20, -- delaytdrums
+            (# control (discretise 1 $ scale 0 100 $ shift' 409 rand)) $ mod $ gain pat # ctlNum 21, -- delayfbdrums
+            (# control (scale 0 127 $ slow 20.66 sine)) $ mod $ gain pat # ctlNum 22, -- b env1
+            (# control (scale 0 127 $ slow 18.1 sine)) $ mod $ gain pat # ctlNum 23, -- b env2
+            (# control (scale 0 127 $ slow 23 sine)) $ mod $ gain pat # ctlNum 1, --x
+            (# control (scale 0 127 $ slow 22 sine)) $ mod $ gain pat # ctlNum 2, --y
+            (# control (scale 0 127 $ slow 21 sine)) $ mod $ gain pat # ctlNum 3, --z
+            (# control (scale 0 127 $ slow 20 sine)) $ mod $ gain pat # ctlNum 4, --atk1
+            (# control (scale 0 127 $ slow 24 sine)) $ mod $ gain pat # ctlNum 5, --dec1
+            (# control (scale 0 127 $ slow 19 sine)) $ mod $ gain pat # ctlNum 6, --sus1
+            (# control (scale 0 127 $ slow 25 sine)) $ mod $ gain pat # ctlNum 7, -- rel1
+            (# control (scale 0 127 $ slow 20.75 sine)) $ mod $ gain pat # ctlNum 14, --atk2
+            (# control (scale 0 127 $ slow 24.25 sine)) $ mod $ gain pat # ctlNum 15, --dec2
+            (# control (scale 0 127 $ slow 19.333 sine)) $ mod $ gain pat # ctlNum 16, --sus2
+            (# control (scale 0 127 $ slow 21.3333 sine)) $ mod $ gain pat # ctlNum 17, -- rel2
+            (# control (scale 0 127 $ slow 18.66667 sine)) $ mod $ gain pat # ctlNum 18, -- harm blur
+            mod $ gain pat # control abChange # ctlNum 13 ]  -- ab
+            # midicmd "control" # midichan 15 # s "midi" # midinudge
+    
+hush
+
+
+do
+        let midinudge = nudge 0.2
+        d1 $ midinote "0" #  s "midi" # midichan "0"
+        d2 $ s "midi" # midichan 15  # midinudge
 
 hush
 
-d3 $ s "midi" # midichan 15
 
+d7 $ kmod $ mod $ gain pat # stack [s "turret" # cut "22" # pan 0.25, s "turret" # cut "23" # pan 0.75 |*| speed 1.1] 
+        # n (discretise 1 $ shift' 2004 $ choose [0,4])
+        |+| note "-5"
+        |+| note (discretise 1 $ shift' 2003 $ choose [-12,-11..(-9)])
+        # begin (discretise 1 $ shift' 2002 $ choose [0,0.01..0.5]) 
