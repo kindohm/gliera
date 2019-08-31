@@ -27,3 +27,26 @@ do
 
     hush
 
+
+
+    d1 $ s "k*16?"
+
+    clutchIn 1 8 $ s "cp(3,8)"
+
+    hush
+
+d1 
+    $ stack [ s "bd*16?"
+    , s "~ cp" ]
+
+    clutchIn 1 4 $ (1 <~) $ s "mi*16?"
+sdf
+    
+
+hush
+
+flood "testing "
+
+let replicator text1 = [putStr (text1) | x <- replicate 500 text1]
+    flood text2 = sequence_(replicator text2)
+
